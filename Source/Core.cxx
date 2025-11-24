@@ -12,37 +12,26 @@
 #include "TChain.h"
 #include "TRandom3.h"
 #include "TF1.h"
+#include "TString.h"
+#include "TObjArray.h"
+#include "TObjString.h"
 
 #include "utils/StFemtoTrack.h"
 #include "utils/StFemtoEvent.h"
 #include "utils/QualityController.h"
 #include "utils/CentDefinition.h"
 #include "utils/EffMaker.h"
+#include "utils/LoaderHomo.h"
 
-#ifdef __FOURTH__
-	#include "utils/Loader4.h"
-#elif defined(__HOMO3__)
-	#include "utils/LoaderHomo.h"
-#else
-	#include "utils/Loader6.h"
-#endif
 
 int main(int argc, char** argv){
 	/*
-		==  v4.3 eTof flag is now canceled
-		==  v3.0 new argument: efficiency factor (pabr)
-		==  v2.4 new argument: eTOF
-		==  v2.3 new argument: task tag
-		Arguments: 7
-		[1]:tpc eff path:
-		[2]:tof eff path:
-		[3]:pid eff path:
-		[4]:nsigma cut tag: would be like XpY
-		// :pid eff mode: 0 or 1 -> CANCELED
-		[5]:eff factor (pro)
-		[6]:eff factor (pbar)
-		[7]:task tag: like trad.y5
-		// :eTof: 1 or 0, for use eTOF mass2 or not -> CANCELED
+		Arguments: 5
+		[1]:nsigma cut tag: like 2p0
+		[2]:eff factor (pro)
+		[3]:eff factor (pbar)
+		[4]:task tag: like default.y0p5 = default + y0p5 (system tag + scan tag)
+		[5]:energy
 	*/
 
 	TChain *chain = new TChain("fDst");
@@ -52,79 +41,64 @@ int main(int argc, char** argv){
 		chain->Add(filename.c_str());
 	}
   	long int nentries = chain->GetEntries();
-  	
-	// BadRunChecker cker("/star/u/yghuang/Work/DataAnalysis/BES2/7p7/cumulant/Oct25/empty.list"); // if need a bad run checker
+
     // prepare a np hist (TH2D for Np and RefMult3)
-	// only for |y| < 0.5
-#ifdef __REFMULT3__
-    TH2D* hNpRef3 = new TH2D("hNprotonRefMult3", ";RefMult3;N_{proton}", 850, -0.5, 849.5, 100, -0.5, 99.5);
-    TH2D* hNaRef3 = new TH2D("hNantiprotonRefMult3", ";RefMult3;N_{antiproton}", 850, -0.5, 849.5, 30, -0.5, 29.5);
-#ifndef __HOMO3__
-    TH2D* hNnRef3 = new TH2D("hNnetprotonRefMult3", ";RefMult3;N_{net-proton}", 850, -0.5, 849.5, 80, -10.5, 69.5);
-#endif
-#endif
-    TH2D* hNpRef3X = new TH2D("hNprotonRefMult3X", ";RefMult3X;N_{proton}", 1050, -0.5, 1049.5, 100, -0.5, 99.5);
-    TH2D* hNaRef3X = new TH2D("hNantiprotonRefMult3X", ";RefMult3X;N_{antiproton}", 1050, -0.5, 1049.5, 30, -0.5, 29.5);
-#ifndef __HOMO3__
-    TH2D* hNnRef3X = new TH2D("hNnetprotonRefMult3X", ";RefMult3X;N_{net-proton}", 1050, -0.5, 1049.5, 80, -10.5, 69.5);
-#endif
+	int MaxMult = 1250;
+    TH2D* hNpRef3X = new TH2D("hNprotonRefMult3X", ";RefMult3X;N_{proton}", MaxMult, -0.5, MaxMult-0.5, 100, -0.5, 99.5);
+    TH2D* hNaRef3X = new TH2D("hNantiprotonRefMult3X", ";RefMult3X;N_{antiproton}", MaxMult, -0.5, MaxMult-0.5, 50, -0.5, 49.5);
+    TH2D* hNnRef3X = new TH2D("hNnetprotonRefMult3X", ";RefMult3X;N_{net-proton}", MaxMult, -0.5, MaxMult-0.5, 80, -10.5, 69.5);
   	std::cout << "[LOG] There will be " << nentries << " events.\n";
 
-	// v2.3 single rapidity for each
-	const char* task_tag = argv[7];
-	std::cout << "[LOG] - From Core: The tag of this task would be: " << task_tag << ".\n";
-
-	// v4.3 canceled
-	// v2.4 eTOF mass2
-	// const char* eTofUseInt = argv[8];
-	// bool eTofUse;
-	// if (atoi(eTofUseInt) == 0) {
-	// 	std::cout << "[LOG] - From Core: eTOF mass square will NOT be used in the analysis!\n";
-	// 	eTofUse = false;
-	// } else {
-	// 	std::cout << "[LOG] - From Core: eTOF mass square WILL be used in the analysis!\n";
-	// 	eTofUse = true;
-	// }
+	const char* task_tag = argv[4];
+	TString full_tag(task_tag);
+	TString system_tag, scan_tag;
+	TObjArray* tokens = full_tag.Tokenize(".");
+	if (tokens->GetEntries() == 2) {
+		system_tag = ((TObjString*)tokens->At(0))->GetString();
+		scan_tag = ((TObjString*)tokens->At(1))->GetString();
+	} else {
+		std::cout << "[ERROR] - From Core: Cannot regcognize the task tag " << task_tag << ". Now quit!\n";
+		return -1;
+	}
+	delete tokens;
+	std::cout << "[LOG] - From Core: System Tag is " << system_tag << ".\n";
+	std::cout << "[LOG] - From Core: Scan Tag is " << scan_tag << ".\n";
 	
+	std::string energy = argv[5];
+	if (
+		energy != "7.7" && energy != "9.2" && energy != "11.5" &&
+		energy != "14.6" && energy != "17.3" && energy != "19.6" && energy != "27"
+	) {
+		std::cout << "[ERROR] - From Core: Invalid energy " << energy << ". Now quit!\n";
+		return -1;
+	}
+
 	std::ifstream* fin = new std::ifstream();
-	fin->open(Form("%s.getTerms.cfg", argv[7]));
+	fin->open(Form("%s.getTerms.cfg", task_tag));
 	QualityController* qc = new QualityController();
 	qc->readConfig(fin);
 
-#ifdef __REFMULT3__
-	CentDefinition* centDef3 = new CentDefinition();
-	std::cout << "[LOG] - From Core: Initializing centrality tool for RefMult3" << std::endl;
-	centDef3->Init("cent_edge.txt");
-#endif
 	CentDefinition* centDef3X = new CentDefinition();
 	std::cout << "[LOG] - From Core: Initializing centrality tool for RefMult3X" << std::endl;
 	centDef3X->Init("cent_edgeX.txt");
 
 	// efficiency items here (for uncorrected case, just ignore them is okey)
 	EffMaker* effMaker = new EffMaker();
-	effMaker->ReadInEffFile(argv[1], argv[2], argv[3], argv[4]);
-    double eff_factor_pro = std::atof(argv[5]);
-    double eff_factor_pbar = std::atof(argv[6]);
+	bool effSuccess = effMaker->Init(energy, system_tag.Data(), argv[1]);
+	if (!effSuccess) {
+		std::cout << "[ERROR] - From Core: Fail to initialize the efficiency maker. Now quit!\n";
+		return -1;
+	}
+    double eff_factor_pro = std::atof(argv[2]);
+    double eff_factor_pbar = std::atof(argv[3]);
 	std::cout << "[LOG] - From Core: Efficiency Factor (proton): " << eff_factor_pro << std::endl;
 	std::cout << "[LOG] - From Core: Efficiency Factor (antiproton): " << eff_factor_pbar << std::endl;
 
 	StFemtoEvent *event = new StFemtoEvent();
 	chain->SetBranchAddress("StFemtoEvent", &event);
-	int MaxMult = 1000;
-
-#ifdef __REFMULT3__
-	TFile* terms3 = new TFile(Form("%s.root", task_tag), "recreate");
-#ifndef __HOMO3__
-	Loader* lder_n = new Loader("Netp", terms3, MaxMult);
-#endif
-	Loader* lder_p = new Loader("Pro", terms3, MaxMult);
-	Loader* lder_a = new Loader("Pbar", terms3, MaxMult);
-#endif
 
 	TFile* terms3X = new TFile(Form("%sX.root", task_tag), "recreate");
-#ifndef __HOMO3__
 	Loader* lder_nX = new Loader("Netp", terms3X, MaxMult);
-#endif
 	Loader* lder_pX = new Loader("Pro", terms3X, MaxMult);
 	Loader* lder_aX = new Loader("Pbar", terms3X, MaxMult);
 
@@ -140,13 +114,9 @@ int main(int argc, char** argv){
 
 		// Make Event Cuts
 		double vz = event->GetVz();
-
-#ifdef __REFMULT3__
-		double refMult3 = event->GetRefMult3();
-		int centBin = centDef3->GetCentrality(refMult3);
-		if (refMult3 > MaxMult) { continue; }
-		if (centBin < 0) { continue; }
-#endif
+		int region = 0;
+		if (energy == "9.2") { region = event->GetRegion(); }
+		effMaker->SetRegion(region);
 
 		double refMult3X = event->GetRefMult3X();
 		int centBinX = centDef3X->GetCentrality(refMult3X);
@@ -172,22 +142,63 @@ int main(int argc, char** argv){
 			double nSig = trk.GetNSigmaProton();
 			double mass2 = trk.GetMass2();
 			double fYP = fabs(YP);
-			// eTOF information is not stored in StFemtoDst now
-			// Float_t isETofMass2 = trk.IsETofMass2(); // yes, it's a boolean but I store it using float
-			// if (!eTofUse && isETofMass2 == 1.0) { mass2 = -999; }
-			
+
 			// Here is the PID selection: use TOF or not
 			bool needTOF = false;
 			bool asCut = false; // by default, apply symmetric PID cut
-			if (fYP < 0.5 && pt > 0.8) { needTOF = true; }
-			if (fYP >= 0.5 && fYP < 0.6) {
+
+			// set different PID strategy for various energies
+			if (energy == "7.7") {
 				if (positive) {
-					if (pt > 0.9) { asCut = true; }
-					if (pt > 1.1) { needTOF = true; }
+					if (fYP < 0.6 && pt > 0.8) { needTOF = true; }
+					if (fYP >= 0.5 && fYP < 0.6 && pt > 0.7 && pt <= 0.8) { asCut = true; }
 				} else {
-					if (pt > 0.7) { asCut = true; }
-					if (pt > 1.0) { needTOF = true; }
+					if (fYP < 0.4 && pt > 0.7) { needTOF = true; }
+					if (fYP >= 0.4 && fYP < 0.6 && pt <= 0.8) { asCut = true; }
+					if (fYP >= 0.4 && fYP < 0.6 && pt > 0.8) { needTOF = true; }
 				}
+			} else if (energy == "9.2") {
+				if (fYP < 0.5 && pt > 0.8) { needTOF = true; }
+				if (fYP >= 0.5 && fYP < 0.6) {
+					if (pt > 0.8) { asCut = true; }
+					if (pt > 0.9) { needTOF = true; }
+				} 
+			} else if (energy == "11.5") {
+				if (fYP < 0.5 && pt > 0.8) { needTOF = true; }
+				if (fYP >= 0.5 && fYP < 0.6) {
+					if (positive) {
+						if (pt > 0.9) { asCut = true; }
+						if (pt > 1.1) { needTOF = true; }
+					} else {
+						if (pt > 0.7) { asCut = true; }
+						if (pt > 0.9) { needTOF = true; }
+					}
+				}
+			} else if (energy == "14.6") {
+				if (fYP < 0.5 && pt > 0.8) { needTOF = true; }
+				if (fYP >= 0.5 && fYP < 0.6) {
+					if (pt > 0.8) { asCut = true; }
+					if (pt > 1.0) { needTOF = true; }
+				} 
+			} else if (energy == "17.3") {
+				if (fYP < 0.5 && pt > 0.8) { needTOF = true; }
+				if (fYP >= 0.5 && fYP < 0.6) {
+					if (pt > 0.8) { asCut = true; }
+					if (pt > 1.0) { needTOF = true; }
+				} 
+			} else if (energy == "19.6") {
+				if (fYP < 0.5 && pt > 0.8) { needTOF = true; }
+				if (fYP >= 0.5 && fYP < 0.6) {
+					if (positive) {
+						if (pt > 0.9) { asCut = true; }
+						if (pt > 1.1) { needTOF = true; }
+					} else {
+						if (pt > 0.7) { asCut = true; }
+						if (pt > 1.0) { needTOF = true; }
+					}
+				}
+			} else if (energy == "27") {
+				if (fYP < 0.5 && pt > 0.8) { needTOF = true; }
 			}
 
 			// Make track Cut
@@ -203,34 +214,9 @@ int main(int argc, char** argv){
 			// detector efficiency
 
 			// for corrected case:
-			// Note: for v7.6 and higher version, GetPidEff requires an addtional boolean (asCut), which means DO APPLY 1/2 cut on TPC PID
-			//		-> so for TOF part, this asCut won't affect, but perhaps it is still in the range, nad that's why here I use asCut && !needTOF instead of simple asCut
 			double pid_eff = effMaker->GetPidEff(positive, pt, YP, asCut && !needTOF);
 
 			double eff_factor = positive ? eff_factor_pro : eff_factor_pbar;
-			
-#ifdef __REFMULT3__
-			double eff = 1.0;
-			double tpc_eff = effMaker->GetTpcEff(positive, pt, YP, centBin, vz);
-			double tof_eff = effMaker->GetTofEff(positive, pt, YP, centBin, vz);
-
-			eff = tpc_eff * pid_eff;
-			if (needTOF) { eff *= tof_eff; }
-			eff *= eff_factor;
-            eff = eff > 1.0 ? 1.0 : eff;
-
-			if (positive) {
-				lder_p->ReadTrack(1.0, eff);
-#ifndef __HOMO3__
-				lder_n->ReadTrack(1.0, eff);
-#endif
-			} else {
-				lder_a->ReadTrack(1.0, eff);
-#ifndef __HOMO3__
-				lder_n->ReadTrack(-1.0, eff);
-#endif
-			}
-#endif
 
 			double effX = 1.0;
 			double tpc_effX = effMaker->GetTpcEff(positive, pt, YP, centBinX, vz);
@@ -243,48 +229,21 @@ int main(int argc, char** argv){
 
 			if (positive) {
 				lder_pX->ReadTrack(1.0, effX);
-#ifndef __HOMO3__
 				lder_nX->ReadTrack(1.0, effX);
-#endif
 			} else {
 				lder_aX->ReadTrack(1.0, effX);
-#ifndef __HOMO3__
 				lder_nX->ReadTrack(-1.0, effX);
-#endif
 			}
 
 		} // track loop ends
 
-#ifdef __REFMULT3__
-		lder_p->Store(refMult3);
-		lder_a->Store(refMult3);
-#ifndef __HOMO3__
-		lder_n->Store(refMult3);
-#endif
-        hNpRef3->Fill(refMult3, np);
-        hNaRef3->Fill(refMult3, na);
-#ifndef __HOMO3__
-        hNnRef3->Fill(refMult3, np - na);
-#endif
-#endif
-
 		lder_pX->Store(refMult3X);
 		lder_aX->Store(refMult3X);
-#ifndef __HOMO3__
 		lder_nX->Store(refMult3X);
-#endif
         hNpRef3X->Fill(refMult3X, np);
         hNaRef3X->Fill(refMult3X, na);
-#ifndef __HOMO3__
         hNnRef3X->Fill(refMult3X, np - na);
-#endif
   	} // event loop ends
-	
-#ifdef __REFMULT3__
-	terms3->cd();
-	terms3->Write();
-	terms3->Close();
-#endif
 
 	terms3X->cd();
 	terms3X->Write();
@@ -293,19 +252,9 @@ int main(int argc, char** argv){
     TFile* p_dist_file = new TFile(Form("%s.pDist.root", task_tag), "recreate");
     p_dist_file->cd();
 
-#ifdef __REFMULT3__
-    hNpRef3->Write();
-    hNaRef3->Write();
-#ifndef __HOMO3__
-    hNnRef3->Write();
-#endif
-#endif
-
     hNpRef3X->Write();
     hNaRef3X->Write();
-#ifndef __HOMO3__
     hNnRef3X->Write();
-#endif
     p_dist_file->Close();
 
 	std::cout << "[LOG] - From Core: This is the end of getTerms." << std::endl;
