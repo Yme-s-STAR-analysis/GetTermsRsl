@@ -8,9 +8,4 @@
 #pragma link C++ nestedclass;
 #pragma link C++ class StFemtoTrack+;
 #pragma link C++ class StFemtoEvent+;
-
-//#pragma link C++ defined_in "MomentEventLoop.h";
-//#pragma link C++ defined_in "Loader.h";
-//#pragma link C++ defined_in "InputParameterList.h";
-
 #endif
