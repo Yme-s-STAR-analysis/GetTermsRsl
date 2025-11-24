@@ -1,34 +1,5 @@
-/*
-
-    Version 3.0 (27.08.2024)
-
-    > Consider asymmetric PID cut
-
-    Version 2.0 (15.12.2023)
-
-    > DCAxy/z cut is done when generate fDst tree, this options are deprecated, but the interfaces are kept
-
-    Version 1.4 (16.10.2023)
-
-    > Vz range now needs a minimum and maximum instead of symmetric cut
-
-    Version 1.3 (29.09.2023)
-
-    > Additional rapidity mode option, if is 1, we use the symmetric window (about 0), if is 2, we use the specified range
-    > Example, 1 with (0.0, 0.5), means -0.5 to 0.5.
-    > Example, 2 with (0.0, 0.5), means 0.0 to 0.5
-
-    Version 1.2 (07.06.2023)
-
-    > Add rapidity as a condition.
-    
-    Version 1.1 (05.06.2023)
-
-    > New hyperparam reading and control system.
-*/
-
-#ifndef __YIGE_QLT_CTRL__
-#define __YIGE_QLT_CTRL__
+#ifndef __RSL_QLTCTRL__
+#define __RSL_QLTCTRL__
 
 #include <fstream>
 #include <iostream>

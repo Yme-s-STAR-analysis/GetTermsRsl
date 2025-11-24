@@ -1,5 +1,5 @@
-#ifndef __CENTDEFCLASS__
-#define __CENTDEFCLASS__
+#ifndef __RSL_CENTDEFCLASS__
+#define __RSL_CENTDEFCLASS__
 
 class CentDefinition {
 

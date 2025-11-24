@@ -1,5 +1,5 @@
-#ifndef LOADER_H
-#define LOADER_H
+#ifndef __RSL_LOADER__
+#define __RSL_LOADER__
 
 class TProfile;
 class TH1D;
