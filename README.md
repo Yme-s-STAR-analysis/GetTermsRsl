@@ -2,46 +2,53 @@
 
 `author: yghuang`
 
-`version: 7.8`
+`version: Homogenous 8.0`
 
 ## Quick Start
 
-1. modify parameters in `conf.py` according to your requirements
+1. Change `energy` and `sysTag` in `conf.py` to specify the dataset;
 
-2. in `Source` folder, replace `utils/CentParams.h` with the correct one of the very data set
+2. Modify task configurations in `conf.py` according to your requirement;
 
-3. swicth to ROOT6 and `make`
+3. Important: Swicth to ROOT6, and then `make`;
 
-    1. To activate up to 4th order mode, add `FOURTH=1`
+4. Run `python3 manager.py submit a` to submit jobs of get terms:
 
-    2. To activate homogenous factorial cumulant up to 3rd order mode, add `HOMO3=1`.
-    Note that, `FOURTH=1` tag will disable this mode.
+    1. You can try `python3 manager.py submit s` to generate job folders and not submit jobs;
 
-    3. To activate RefMult3, add `REFMULT3=1`
+    2. Then use `python3 manager.py submit b` to submit jobs.
 
-4. change `cent_edge.txt` and `cent_edgeX.txt`
+5. In case some jobs failed to run, you can find them and use `python3 manager.py submit r` to resubmit;
 
-5. run `python3 manager.py submit a` to submit jobs of get terms
+    * You will need to prepare a `resubmit.id.txt` file.
 
-    1. you can try `python3 manager.py submit s` to generate job folders and not submit jobs
+6. After all the jobs are finished, use `python3 manager.py merge X` to hadd:
 
-    2. then use `python3 manager.py submit b` to submit jobs
+    1. `python3 manager.py merge 1` will merge the first time;
 
-6. after all the jobs are finished, try `python3 manager.py merge` to hadd them
+    2. `python3 manager.py merge 2` will merge the second time, such 2-term merge procedure can reduce merging time when we have too many sub-jobs;
 
-    1. `python3 manager.py merge 1` will merge the first time
+    3. `python3 manager.py merge 0` will directly merge once, this mode is useful when we don't have that many sub-jobs.
 
-    2. `python3 manager.py merge 2` will merge the second time, such 2-term merge procedure can reduce merging time when we have too many sub-jobs
+7. Switch back to ROOT5, and run `python3 manager.py calc` to calculate cumulants;
 
-    3. `python3 manager.py merge 0` will directly merge once, this mode is useful when we don't have that many sub-jobs
+8. `python3 manager.py col` to collect cumulant root file, then you can download them;
 
-7. switch back to ROOT5 and run `python3 manager.py calc` to calculate cumulants
-
-8. `python3 manager.py col` to collect cumulant root file, note that, those files did not apply re-weight
-
-9. `python3 manager.py clean [out/merge/calc]` to remove corresponding files
+9. When you are sure that those results are OK, run `python3 manager.py clean [out/merge/calc]` to remove corresponding files.
 
 ## Patch Note
+
+Version: Homogenous 8.0
+
+25.11.2025 - Yige Huang
+
+1. Dedicated enhancement of v7.8 for homogeneous checks;
+
+2. JDL and code refactoring for Alma9 system compatibility;
+
+3. Pruned compilation options and implementations irrelevant to homogeneous analysis;
+
+4. Adaptation to updated interfaces related to 3.
 
 Version: 7.8
 
