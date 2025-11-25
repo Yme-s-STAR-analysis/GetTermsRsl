@@ -24,6 +24,7 @@ n = len(lists)
 
 baseFile = lists.pop(0)
 saveName = f'{taskName}.{scanName}.root'
+hadd = '/cvmfs/star.sdcc.bnl.gov/star-spack/spack/opt/spack/linux-rhel7-x86/gcc-4.8.5/root-5.34.38-llsepmmfuwlsucogcwbjiodncxanoudt/bin/hadd'
 l.log(f'Now hadd 1 / {n} : {baseFile}')
 os.system(f'cp {baseFile} {targetDir}/tmp.{saveName}')
 for idx, item in enumerate(lists):
@@ -31,7 +32,7 @@ for idx, item in enumerate(lists):
     if not os.path.exists(item):
         l.log(f'{item} does not exist, skip!')
         continue
-    os.system(f'hadd {targetDir}/{saveName} {item} {targetDir}/tmp.{saveName}')
+    os.system(f'{hadd} {targetDir}/{saveName} {item} {targetDir}/tmp.{saveName}')
     os.system(f'mv {targetDir}/{saveName} {targetDir}/tmp.{saveName}')
 os.system(f'mv {targetDir}/tmp.{saveName} {targetDir}/{saveName}')
 
