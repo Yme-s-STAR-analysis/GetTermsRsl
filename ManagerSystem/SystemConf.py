@@ -88,8 +88,8 @@ class CutConfig:
             '27': [1.29286, -41.3695, 2.43434, 26.3825, -0.000741628, 5.3655e-07, 2559.85, 279]
         }
         self.cent_edgeX = cent_edgeMap[energy]
-        self.NpartX = NpartMap[cent_edgeMap]
-        self.w8X = w8Map[cent_edgeMap]
+        self.NpartX = NpartMap[energy]
+        self.w8X = w8Map[energy]
         
     def SetSystemTag(self, sysTag):
         r'''
