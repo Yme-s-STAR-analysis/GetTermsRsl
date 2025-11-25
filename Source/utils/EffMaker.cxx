@@ -5,61 +5,70 @@
 #include "TF1.h"
 #include "TString.h"
 #include <iostream>
+#include <cstring>
+#include <string>
 
-bool EffMaker::Init(std::string energy, const char* sysTag, const char* nSigTag) {
+bool EffMaker::Init(std::string energy, const char* sysTagRaw, const char* nSigTag) {
     this->energy = energy;
+    // if sysTag is a member of this vector, it will be used in efficiency file,
+    // otherwise, we use "default"
+    std::string sysTag = "default";
+
+    if (strncmp(sysTagRaw, "dca", 3) == 0 || strncmp(sysTagRaw, "nhit", 4) == 0) {
+        sysTag = sysTagRaw;
+    }
     if (energy == "7.7") {
         ReadInEffFile(
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/7/TpcEff.%s.root", sysTag),
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/7/TofEff.%s.root", sysTag),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/7/TpcEff.%s.root", sysTag.c_str()),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/7/TofEff.%s.root", sysTag.c_str()),
             "/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/7/PidEff.root",
             nSigTag
         );
     } else if (energy == "9.2") {
         std::cout << "[LOG] - From EffMaker Module: Initialize EffMaker with energy " << energy << "." << std::endl;
         ReadInEffFile(
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/9/TpcEff.%s.root", sysTag),
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/9/TofEff.%s.root", sysTag),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/9/TpcEff.%s.root", sysTag.c_str()),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/9/TofEff.%s.root", sysTag.c_str()),
             "/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/9/PidEff.root",
             nSigTag
         );
     } else if (energy == "11.5") {
         std::cout << "[LOG] - From EffMaker Module: Initialize EffMaker with energy " << energy << "." << std::endl;
         ReadInEffFile(
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/11/TpcEff.%s.root", sysTag),
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/11/TofEff.%s.root", sysTag),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/11/TpcEff.%s.root", sysTag.c_str()),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/11/TofEff.%s.root", sysTag.c_str()),
             "/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/11/PidEff.root",
             nSigTag
         );
     } else if (energy == "14.6") {
         std::cout << "[LOG] - From EffMaker Module: Initialize EffMaker with energy " << energy << "." << std::endl;
         ReadInEffFile(
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/14/TpcEff.%s.root", sysTag),
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/14/TofEff.%s.root", sysTag),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/14/TpcEff.%s.root", sysTag.c_str()),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/14/TofEff.%s.root", sysTag.c_str()),
             "/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/14/PidEff.root",
             nSigTag
         );
     } else if (energy == "17.3") {
         std::cout << "[LOG] - From EffMaker Module: Initialize EffMaker with energy " << energy << "." << std::endl;
         ReadInEffFile(
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/17/TpcEff.%s.root", sysTag),
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/17/TofEff.%s.root", sysTag),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/17/TpcEff.%s.root", sysTag.c_str()),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/17/TofEff.%s.root", sysTag.c_str()),
             "/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/17/PidEff.root",
             nSigTag
         );
     } else if (energy == "19.6") {
         std::cout << "[LOG] - From EffMaker Module: Initialize EffMaker with energy " << energy << "." << std::endl;
         ReadInEffFile(
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/19/TpcEff.%s.root", sysTag),
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/19/TofEff.%s.root", sysTag),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/19/TpcEff.%s.root", sysTag.c_str()),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/19/TofEff.%s.root", sysTag.c_str()),
             "/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/19/PidEff.root",
             nSigTag
         );
     } else if (energy == "27") {
         std::cout << "[LOG] - From EffMaker Module: Initialize EffMaker with energy " << energy << "." << std::endl;
         ReadInEffFile(
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/27/TpcEff.%s.root", sysTag),
-            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/27/TofEff.%s.root", sysTag),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/27/TpcEff.%s.root", sysTag.c_str()),
+            Form("/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/27/TofEff.%s.root", sysTag.c_str()),
             "/star/u/yghuang/Work/DataAnalysis/BES2/OverAll/4EmbedList/4EffFiles/27/PidEff.root",
             nSigTag
         );

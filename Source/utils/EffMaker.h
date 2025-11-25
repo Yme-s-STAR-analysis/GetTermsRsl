@@ -42,7 +42,7 @@ class EffMaker{
         EffMaker():region(0){}
         ~EffMaker(){}
 
-        bool Init(std::string energy, const char* sysTag,const char* nSigTag);
+        bool Init(std::string energy, const char* sysTagRaw, const char* nSigTag);
         void ReadInEffFile(const char* tpc, const char* tof, const char* pid, const char* nSigTag);
         double GetTpcEff(bool positive, double pt, double y, int cent, double vz);
         double GetTofEff(bool positive, double pt, double y, int cent, double vz);
