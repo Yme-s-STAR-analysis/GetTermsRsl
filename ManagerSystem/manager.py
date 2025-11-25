@@ -187,6 +187,7 @@ if mode == 'submit':
 
         l.log('Now deploying')
         os.system(f'cp conf.py {msDir}/conf.py')
+        os.system(f'cp SystemConf.py {msDir}/SystemConf.py')
         os.system(f'cp deploy.py {msDir}/deploy.py')
         os.system(f'cp deploy.job {msDir}/deploy.job')
         os.system(f'cd {msDir} && condor_submit deploy.job')
