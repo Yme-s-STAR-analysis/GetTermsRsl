@@ -103,7 +103,7 @@ class CutConfig:
             'default',
             'dca0p8', 'dca0p9', 'dca1p1', 'dca1p2', 
             'nhit15', 'nhit18', 'nhit22', 'nhit25', 'nhit12', 'nhit17',
-            'nsig1p6', 'nsig1p8', 'nsig2p2', 'nsigp2p5', 
+            'nsig1p6', 'nsig1p8', 'nsig2p2', 'nsig2p5', 
             'mass21', 'mass22', 'mass23', 'mass24', 
             'effp', 'effm'
         ]
