@@ -84,6 +84,7 @@ if mode == 'submit':
         l.log(f'{CutArgs.nFilesPerJob=}')
         l.log(f'{CutArgs.outDir=}')
         l.log(f'{CutArgs.fileList=}')
+        l.log(f'{CutArgs.energy=}')
         l.log(f'{CutArgs.nSigmaTag=}')
         l.log(f'{CutArgs.eff_fac_pro=}')
         l.log(f'{CutArgs.eff_fac_pbar=}')
@@ -105,8 +106,8 @@ if mode == 'submit':
                 for line in range(i * nFilesPerJob, (i+1) * nFilesPerJob):
                     f.write(flist[line])
         if bonus:
-            with open(f'{msDir}/{nJobs}.list', 'w') as f:
-                for line in range(nJobs * nFilesPerJob, nFiles):
+            with open(f'{msDir}/{nJobs - 1}.list', 'w') as f:
+                for line in range((nJobs - 1) * nFilesPerJob, nFiles):
                     f.write(flist[line])
 
         # step 2: prepare submitting scripts
@@ -742,6 +743,7 @@ if mode == 'clean':
 if mode == 'report':
     l.log('Manager System: Task Report')
     l.log(f'Current verion of manager: {__version__} ({__updatedTime__})')
+    l.log(f'Energy: {CutArgs.energy}')
     l.log(f'Task Name: {CutArgs.title}')
     
     l.log(f'# General Information')
